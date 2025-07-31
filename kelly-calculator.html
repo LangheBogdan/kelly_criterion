@@ -4,22 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelly Criterion Calculator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .katex-display {
-            margin: 0.5em 0;
-        }
-    </style>
+    <link rel="stylesheet" href="src/styles.css">
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body>
 
-<div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
+<div class="container">
 
     <!-- Header -->
     <header class="text-center mb-8">
@@ -27,108 +19,133 @@
         <p class="mt-2 text-lg text-gray-600">A tool for optimal bet sizing to maximize long-term bankroll growth.</p>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 lg-grid-cols-3">
 
-        <!-- Left Column: Calculator -->
-        <div class="lg:col-span-2">
-            <div class="bg-white p-6 rounded-2xl shadow-lg">
+        <!-- Left Column: Calculators -->
+        <div class="lg-col-span-2 space-y-8">
+            <!-- Kelly Criterion Calculator -->
+            <div class="card">
                 <h2 class="text-2xl font-bold mb-4">Calculate Optimal Bet</h2>
-
-                <!-- Input Fields -->
                 <div class="space-y-4">
                     <div>
-                        <label for="probability" class="block text-sm font-medium text-gray-700">Probability of Winning (p)</label>
-                        <input type="number" id="probability" step="0.01" min="0" max="1" placeholder="e.g., 0.60 for 60%" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        <p class="mt-1 text-xs text-gray-500">The probability the bet will be successful.</p>
+                        <label for="probability" class="form-label">Probability of Winning (p)</label>
+                        <input type="number" id="probability" step="0.01" min="0" max="1" placeholder="e.g., 0.60 for 60%"
+                               class="form-input">
+                        <p class="form-help">The probability the bet will be successful.</p>
                     </div>
-
                     <div>
-                        <label for="odds" class="block text-sm font-medium text-gray-700">Decimal Odds (b)</label>
-                        <input type="number" id="odds" step="0.1" min="1" placeholder="e.g., 2 for 2-to-1 odds" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        <p class="mt-1 text-xs text-gray-500">The decimal odds for the bet, minus 1.</p>
+                        <label for="odds" class="form-label">Decimal Odds</label>
+                        <input type="number" id="odds" step="0.1" min="1" placeholder="e.g., 2.0 for even money"
+                               class="form-input">
+                        <p class="form-help">Enter the full decimal odds. The calculator uses 'b = odds - 1' in the
+                            formula.</p>
                     </div>
-
                     <div>
-                        <label for="kelly_fraction" class="block text-sm font-medium text-gray-700">Kelly Fraction</label>
-                        <select id="kelly_fraction" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <label for="kelly_fraction" class="form-label">Kelly Fraction</label>
+                        <select id="kelly_fraction" class="form-select">
                             <option value="1">Full Kelly (100%)</option>
                             <option value="0.5" selected>Half Kelly (50%)</option>
                             <option value="0.25">Quarter Kelly (25%)</option>
                             <option value="0.1">Tenth Kelly (10%)</option>
                         </select>
-                        <p class="mt-1 text-xs text-gray-500">Use a fraction to reduce volatility.</p>
+                        <p class="form-help">Use a fraction to reduce volatility.</p>
                     </div>
                 </div>
-
-                <!-- Calculate Button -->
                 <div class="mt-6">
-                    <button id="calculateBtn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
-                        Calculate
-                    </button>
+                    <button id="calculateBtn" class="btn btn-primary w-full">Calculate</button>
                 </div>
-
-                <!-- Result Display -->
-                <div id="result" class="mt-6 p-4 bg-gray-100 rounded-lg text-center hidden">
+                <div id="result" class="result-container hidden">
                     <h3 class="text-lg font-semibold text-gray-800">Optimal Bet Size (f*)</h3>
-                    <p id="result-text" class="text-3xl font-bold text-indigo-600 mt-2"></p>
+                    <p id="result-text" class="result-text text-3xl font-bold mt-2"></p>
                     <p id="interpretation" class="mt-2 text-sm text-gray-600"></p>
                 </div>
-
-                <!-- Error Display -->
-                <div id="error" class="mt-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-center hidden">
+                <div id="error" class="error-container hidden">
                     <p id="error-text"></p>
                 </div>
             </div>
 
-            <!-- Explanation Section -->
-            <div class="bg-white p-6 rounded-2xl shadow-lg mt-8">
-                <h2 class="text-2xl font-bold mb-4">The Formula</h2>
-                <div class="text-center bg-gray-100 p-4 rounded-lg">
-                    <span id="latex-formula"></span>
+            <!-- Wager Calculator -->
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Calculate Wager Amount</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="bankroll" class="form-label">Your Bankroll</label>
+                        <input type="number" id="bankroll" step="10" min="0" placeholder="e.g., 1000"
+                               class="form-input">
+                        <p class="form-help">The total amount of money you have for betting.</p>
+                    </div>
+                    <div>
+                        <label for="wager_percentage" class="form-label">Wager Percentage (%)</label>
+                        <input type="number" id="wager_percentage" step="0.01" min="0" placeholder="e.g., 0.96"
+                               class="form-input">
+                        <p class="form-help">The percentage of your bankroll to wager.</p>
+                    </div>
                 </div>
-                <ul class="mt-4 space-y-3">
-                    <li><strong class="text-indigo-600">f*</strong>: The fraction of your bankroll to wager.</li>
-                    <li><strong class="text-indigo-600">b</strong>: The decimal odds received on the wager, minus 1. (e.g., for 2-to-1 odds, b = 2)</li>
-                    <li><strong class="text-indigo-600">p</strong>: The probability of winning.</li>
-                    <li><strong class="text-indigo-600">q</strong>: The probability of losing (which is 1 - p).</li>
-                </ul>
+                <div class="mt-6">
+                    <button id="calculateWagerBtn" class="btn btn-secondary w-full">Calculate Wager</button>
+                </div>
+                <div id="wager_result" class="result-container hidden">
+                    <h3 class="text-lg font-semibold text-gray-800">Amount to Wager</h3>
+                    <p id="wager_result_text" class="result-text text-3xl font-bold mt-2"></p>
+                </div>
+                <div id="wager_error" class="error-container hidden">
+                    <p id="wager_error_text"></p>
+                </div>
+            </div>
+
+            <!-- Implied Probability Calculator -->
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">Implied Probability Calculator</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="market_type" class="form-label">Market Type</label>
+                        <select id="market_type" class="form-select">
+                            <option value="2">2-Way (e.g., Tennis)</option>
+                            <option value="3">3-Way (e.g., Soccer)</option>
+                        </select>
+                    </div>
+                    <div id="odds_container" class="space-y-4"></div>
+                </div>
+                <div class="mt-6">
+                    <button id="calculateProbBtn" class="btn btn-primary w-full">Calculate Probability</button>
+                </div>
+                <div id="prob_result" class="result-container hidden">
+                    <h3 class="text-lg font-semibold text-gray-800">Implied Probabilities</h3>
+                    <div id="prob_result_text" class="mt-2 text-sm text-gray-600"></div>
+                </div>
+                <div id="prob_error" class="error-container hidden">
+                    <p id="prob_error_text"></p>
+                </div>
             </div>
         </div>
 
         <!-- Right Column: Information -->
         <div class="space-y-8">
-            <div class="bg-white p-6 rounded-2xl shadow-lg">
-                <h3 class="text-xl font-bold mb-3">What is the Kelly Criterion?</h3>
-                <p class="text-sm text-gray-600">
-                    A mathematical formula for bet sizing that aims to maximize the long-term growth rate of a bankroll. It determines the optimal fraction of capital to allocate to a single opportunity with a positive expected value.
-                </p>
-            </div>
-
-            <div class="bg-white p-6 rounded-2xl shadow-lg">
-                <h3 class="text-xl font-bold mb-3">Core Concepts</h3>
-                <ul class="space-y-3 text-sm text-gray-600">
-                    <li><strong>Goal:</strong> To maximize the geometric mean of outcomes, leading to the highest possible bankroll growth over the long run.</li>
-                    <li><strong>Edge:</strong> Only recommends a bet if you have an 'edge' (when bp > q). If not, it suggests betting nothing.</li>
-                    <li><strong>Risk:</strong> While it theoretically prevents ruin, it can lead to high volatility and significant drawdowns.</li>
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-4">The Formula</h2>
+                <div class="formula-container">
+                    <span id="latex-formula"></span>
+                </div>
+                <ul class="mt-4 space-y-3">
+                    <li><strong class="text-indigo-600">f*</strong>: The fraction of your bankroll to wager.</li>
+                    <li><strong class="text-indigo-600">b</strong>: The decimal odds received on the wager, minus 1.</li>
+                    <li><strong class="text-indigo-600">p</strong>: The probability of winning.</li>
+                    <li><strong class="text-indigo-600">q</strong>: The probability of losing (which is 1 - p).</li>
                 </ul>
             </div>
-
-            <div class="bg-white p-6 rounded-2xl shadow-lg">
-                <h3 class="text-xl font-bold mb-3">Example Calculation</h3>
-                <div class="text-sm text-gray-600 space-y-2">
-                    <p><strong>Scenario:</strong> A coin flip you believe has a 60% chance of heads, paying even money (1-to-1).</p>
-                    <p><strong>Inputs:</strong> p = 0.60, q = 0.40, b = 1</p>
-                    <p><strong>Calculation:</strong> ((1 * 0.60) - 0.40) / 1 = 0.20</p>
-                    <p><strong>Result:</strong> The formula suggests betting <strong>20%</strong> of your bankroll.</p>
-                </div>
+            <div class="card">
+                <h3 class="text-xl font-bold mb-3">What is the Kelly Criterion?</h3>
+                <p class="text-sm text-gray-600">
+                    A mathematical formula for bet sizing that aims to maximize the long-term growth rate of a bankroll.
+                </p>
             </div>
-
-            <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <div class="card">
                 <h3 class="text-xl font-bold mb-3">Practical Considerations</h3>
                 <ul class="space-y-3 text-sm text-gray-600">
-                    <li><strong>Fractional Kelly:</strong> Most practitioners use a fraction (e.g., half-Kelly) to reduce risk and smooth returns.</li>
-                    <li><strong>Estimation Errors:</strong> The formula is very sensitive to the 'p' input. Overestimating your win probability can be catastrophic. Be conservative.</li>
-                    <li><strong>Discipline:</strong> This is a bankroll management strategy, not a system for picking winners. Its success depends on accurate probability assessment.</li>
+                    <li><strong>Fractional Kelly:</strong> Most practitioners use a fraction to reduce risk.</li>
+                    <li><strong>Estimation Errors:</strong> The formula is very sensitive to the 'p' input.</li>
+                    <li><strong>Discipline:</strong> This is a bankroll management strategy, not a system for picking winners.
+                    </li>
                 </ul>
             </div>
         </div>
@@ -140,83 +157,7 @@
     </footer>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const calculateBtn = document.getElementById('calculateBtn');
-        const probabilityInput = document.getElementById('probability');
-        const oddsInput = document.getElementById('odds');
-        const kellyFractionSelect = document.getElementById('kelly_fraction');
-
-        const resultDiv = document.getElementById('result');
-        const resultText = document.getElementById('result-text');
-        const interpretationText = document.getElementById('interpretation');
-
-        const errorDiv = document.getElementById('error');
-        const errorText = document.getElementById('error-text');
-
-        // Render LaTeX formula
-        katex.render("f^* = \\frac{bp - q}{b}", document.getElementById('latex-formula'), {
-            throwOnError: false,
-            displayMode: true
-        });
-
-        calculateBtn.addEventListener('click', () => {
-            // Hide previous results and errors
-            resultDiv.classList.add('hidden');
-            errorDiv.classList.add('hidden');
-
-            // Get and validate inputs
-            const p = parseFloat(probabilityInput.value);
-            const b = parseFloat(oddsInput.value);
-            const kellyFraction = parseFloat(kellyFractionSelect.value);
-
-            if (isNaN(p) || isNaN(b)) {
-                showError("Please enter valid numbers for both fields.");
-                return;
-            }
-            if (p < 0 || p > 1) {
-                showError("Probability of winning must be between 0 and 1.");
-                return;
-            }
-            if (b <= 0) {
-                // Technically b is odds-1, so it can't be negative. And if b=0, division by zero occurs.
-                showError("Decimal Odds (b) must be greater than 0.");
-                return;
-            }
-
-            // Calculate q
-            const q = 1 - p;
-
-            // Calculate Kelly Criterion f*
-            const f_star_full = (b * p - q) / b;
-            const f_star_fractional = f_star_full * kellyFraction;
-
-            // Display result
-            displayResult(f_star_fractional, kellyFraction);
-        });
-
-        function showError(message) {
-            errorText.textContent = message;
-            errorDiv.classList.remove('hidden');
-        }
-
-        function displayResult(f_star, fraction) {
-            resultDiv.classList.remove('hidden');
-
-            if (f_star > 0) {
-                const percentage = (f_star * 100).toFixed(2);
-                resultText.textContent = `${percentage}%`;
-                interpretationText.textContent = `The formula suggests you should wager ${percentage}% of your bankroll on this opportunity.`;
-                if (fraction < 1) {
-                    interpretationText.textContent += ` (This is based on a ${kellyFractionSelect.options[kellyFractionSelect.selectedIndex].text.split('(')[0].trim()} strategy).`;
-                }
-            } else {
-                resultText.textContent = "0%";
-                interpretationText.textContent = "You do not have an edge. The Kelly Criterion suggests you should not bet.";
-            }
-        }
-    });
-</script>
+<script src="src/kelly-calculator.js"></script>
 
 </body>
 </html>

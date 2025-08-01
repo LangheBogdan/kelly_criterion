@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://bogdan-develops.github.io/kelly_criterion_calculator/sitemap.xml
